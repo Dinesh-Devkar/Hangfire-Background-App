@@ -6,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHangfire(x=>x.UseSqlServerStorage(builder.Configuration.GetConnectionString("SqlServerConnection")));
 builder.Services.AddHangfireServer();
 
+//  // Add your HangfireTutorialController dependencies
+//     builder.Services.AddSingleton<IBackgroundJobClient, BackgroundJobClient>();
+//     builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

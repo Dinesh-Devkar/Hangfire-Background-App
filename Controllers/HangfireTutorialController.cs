@@ -11,6 +11,16 @@ namespace HangfireWebApiApp.Controllers
     [Route("[controller]")]
     public class HangfireTutorialController : ControllerBase
     {
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IRecurringJobManager _recurringJobManager;
+
+        public HangfireTutorialController(IBackgroundJobClient backgroundJobClient,IRecurringJobManager recurringJobManager)
+        {
+            _backgroundJobClient=backgroundJobClient;
+            _recurringJobManager=recurringJobManager;
+        }
+
+        
         [HttpPost]
         [Route("FireAndForgetJob")]
         public IActionResult Welcome(string userName)
@@ -52,7 +62,7 @@ namespace HangfireWebApiApp.Controllers
         public void SendWelcomeMail(string userName)
         {
             //Logic to Mail the user
-            Console.WriteLine($"Delayed Welcome to our application, {userName}");
+            Console.WriteLine($"Welcome to our application, {userName}");
         }
 
         [NonAction]
@@ -67,6 +77,39 @@ namespace HangfireWebApiApp.Controllers
             System.Console.WriteLine($"User {userName} UnSubscribe Successfully");
         }
 
+
+
+        //Calling Jobs through Hangfire Interface
+        [HttpGet("IFireAndForgetJob")]
+        public IActionResult IFireAndForgetJob(string userName)
+        {
+            var jobId= _backgroundJobClient.Enqueue(()=>System.Console.WriteLine($"Welcome {userName}"));
+            return Ok($"JobId {jobId} Execute Successfully");
+        }
+
+
+        [HttpGet]
+        [Route("IScheduledJob")]
+        public IActionResult IScheduledJob(string userName)
+        {
+            var jobId=_backgroundJobClient.Schedule(()=>SendWelcomeMail(userName),TimeSpan.FromMinutes(1));
+            return Ok($"JobId : {jobId} executed successfuly");
+        }
+
+        [HttpGet("IRecurringJob")]
+        public IActionResult IRecurringJob(string userName)
+        {
+            _recurringJobManager.AddOrUpdate("",()=>SendInvoiceEmail(userName),Cron.Minutely);
+            return Ok($"Recuring Job executed successfully");
+        }
+
+        [HttpGet("IContinationJob")]
+        public IActionResult IContinationJob(string userName)
+        {
+            var jobId= _backgroundJobClient.Enqueue(()=>SendInvoiceEmail(userName));
+            _backgroundJobClient.ContinueJobWith(jobId,()=>UnSubscribeEmail(userName));
+            return Ok("Contination Job Executed Successfully");
+        } 
 
 
     }
