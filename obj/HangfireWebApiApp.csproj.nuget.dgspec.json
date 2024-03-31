@@ -43,9 +43,17 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Hangfire": {
+              "target": "Package",
+              "version": "[1.8.11, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.5, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[5.2.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
