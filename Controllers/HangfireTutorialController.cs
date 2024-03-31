@@ -39,6 +39,15 @@ namespace HangfireWebApiApp.Controllers
             return Ok("Recuring Job Scheduled Successfully");
         }
 
+        [HttpPost]
+        [Route("ContinuationJob")]
+        public IActionResult ContinuationJob(string userName)
+        {
+            var jobId= BackgroundJob.Enqueue(()=>SendWelcomeMail(userName));
+            var jobTwo=BackgroundJob.ContinueJobWith(jobId,()=>UnSubscribeEmail(userName));
+            return Ok("User UnSubscribe Successfully");
+        }
+
         [NonAction]
         public void SendWelcomeMail(string userName)
         {
@@ -50,6 +59,12 @@ namespace HangfireWebApiApp.Controllers
         public void SendInvoiceEmail(string userName)
         {
             System.Console.WriteLine($"Invoice Sent To {userName} On Email");
+        }
+
+        [NonAction]
+        public void UnSubscribeEmail(string userName)
+        {
+            System.Console.WriteLine($"User {userName} UnSubscribe Successfully");
         }
 
 
